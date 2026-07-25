@@ -1,3 +1,12 @@
+################################################################################
+# Script: 11.1.Forest_Plot_SA_Cov.R
+#
+# Purpose:
+#   Make forest plots demonstrating the resulting weighted prevalnce ratios
+#   and their confidence intervals. This is done for the sensitivity analysis
+#   where BMI, education, marital status, and dementia status are considered
+#   confounders and not mediators.
+################################################################################
 library(tibble)
 library(ggplot2)
 library(dplyr)
