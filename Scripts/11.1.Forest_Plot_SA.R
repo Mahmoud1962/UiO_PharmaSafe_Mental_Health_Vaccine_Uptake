@@ -1,5 +1,5 @@
 ################################################################################
-# Script: 11.1.Forest_Plot.R
+# Script: 11.1.Forest_Plot_SA.R
 #
 # Purpose:
 #   Make forest plots demonstrating the resulting weighted prevalnce ratios
