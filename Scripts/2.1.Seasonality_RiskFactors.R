@@ -1,186 +1,59 @@
-################################################################################
-# Script: 2.1.Seasonality_RiskFactors.R
-#
-# Purpose:
-#   This script defines clinical risk groups for the influenza and COVID-19
-#   pregnancy cohorts and applies additional exclusion criteria for the COVID-19
-#   analysis population.
-#
-# Overview:
-#   1. Define diagnosis and procedure code lists for prespecified risk groups
-#   2. Identify risk-factor diagnoses from specialist care (NPR)
-#   3. Aggregate diagnosis-level indicators to the pregnancy level
-#   4. Identify risk-factor diagnoses from primary care (KUHR)
-#   5. Save influenza risk and no-risk cohorts
-#   6. Repeat the same workflow for the COVID-19 pregnancy cohort
-#   7. Exclude prior SARS-CoV-2 infection from NPR, KUHR, and MSIS
-#   8. Exclude prior COVID-19 vaccination from SYSVAK
-#################################################################################
-
-###############################################################################
-# 1. Define clinical risk-factor code lists
-###############################################################################
-
-# The code lists below are used later to flag diagnoses and procedures
-# associated with increased risk of severe respiratory infection or
-# other clinically relevant comorbidity. ICD-10 and ICPC codes capture
-# diagnoses, while NCMP codes capture procedures recorded in specialist care.
-
 # This script aims to more properly define what seasons the patients are included in as well as clearly define risk groups. 
 # Let's start by defining the risk factors
 
-###############################################################################
-# 1a. Organ transplantation
-###############################################################################
-# History of transplantation is treated as a high-risk comorbidity.
-# The ICD-10 and NCMP lists are retained for completeness, even though
-# the later filtering steps in this script primarily reference ICD-10.
 transplantation_ICD10 <- c("Z940", "Z941", "Z942", "Z943", "Z944", "Z948")
 transplantation_NCMP <- c("KAS10", "KAS11", "KAS20", "KAS21", "JLE00", "JLE03", "JLE10", "JLE16", "JJC00", "JJC10", "JJC20")
 
-
-###############################################################################
-# 1b. Neurological disorders
-###############################################################################
-# Neurological conditions are included because several of them can be
-# associated with increased vulnerability to complications from
-# respiratory infections.
 neurology_ICD10 <- c("G1" ,"G20", "G21", "G23", "G24", "G405", "G610", "G70", "G71", "G800", "G802", "G803", "F72", "F73", "F840", "F841", "Q050", "Q051", "Q052", "Q053", "Q054", "Q055", "Q056", "Q90")
 
-
-###############################################################################
-# 1c. Kidney failure
-###############################################################################
-# Chronic kidney disease / kidney failure diagnoses are flagged as
-# clinically relevant risk factors.
 kidney_failure_ICD10 <- c("N183", "N184", "N185")
 kidney_failure_NCMP <- c("JAGD30", "JAGD31")
 
-
-###############################################################################
-# 1d. Liver failure
-###############################################################################
-# Liver failure diagnoses are included as a risk factor because they
-# may reflect severe chronic disease and reduced physiologic reserve.
 liver_failure_ICD10 <- c("K704", "K72")
 
-
-###############################################################################
-# 1e. Diabetes mellitus
-###############################################################################
-# Diabetes is identified from both specialist and primary care coding.
 Diabetes_ICD10 <- c("E10,E11,E12,E13,E14")
 Diabetes_ICPC <- c("T89", "T90")
 
-
-###############################################################################
-# 1f. Chronic lung disease
-###############################################################################
-# Chronic lung disease includes obstructive and other chronic pulmonary
-# diagnoses recorded in specialist or primary care.
 Chronic_lung_disease_ICD10 <- c("J41", "J42", "J43", "J44", "J45", "J46", "J47", "J84", "J98", "E84")
 Chronic_lung_disease_ICPC <- c("R95", "R96")
 
-
-###############################################################################
-# 1g. Obesity
-###############################################################################
-# Obesity is included as a clinical risk factor based on ICD-10 and
-# ICPC coding.
 Obesity_ICD10 <- "E66"
 Obesity_ICPC <- "T82"
 
-
-###############################################################################
-# 1h. Hematological cancer
-###############################################################################
-# Hematological malignancies are included because they are associated
-# with immunosuppression and increased infection risk.
 Hematological_cancer_ICD10 <- c("C81", "C82", "C83", "C84", "C85", "C86", "C87", "C88", "C89", "C90", "C91", "C92", "C93", "C94", "C95", "C96", "D45", "D45", "D47")
 Hematological_cancer_NCMP <- "AAG"
 
-
-###############################################################################
-# 1i. Immunodeficiency
-###############################################################################
-# Primary immunodeficiency diagnoses are explicitly flagged here.
 Immunodeficiency_ICD10 <- c("D80", "D81", "D82", "D83", "D84")
 
-
-###############################################################################
-# 1j. Heart disease
-###############################################################################
-# Cardiac conditions are included as a broad comorbidity category.
 Heart_disease_ICD10 <- c("I05", "I06", "I07", "I08", "I09", "I2", "I31", "I32", "I34", "I35", "I36", "I37", "I39", "I40", "I41", "I42", "I43", "I46", "I48", "I49", "I50")
 Heart_disease_ICPC <- c("K74", "K75", "K76", "K77", "K78", "K82", "K83", "K87")
 
 
-
-###############################################################################
-# 1k. Stroke
-###############################################################################
-# Prior stroke is treated as a major chronic risk factor.
 Stroke_ICD10 <- c("I60", "I61", "I62", "I63", "I64", "I69.1", "I69.2", "I69.3", "I69.4", "I69.8", "I69.0")
 Stroke_ICPC <- c("K90", "K91")
 
-
-###############################################################################
-# 1l. Dementia
-###############################################################################
-# Dementia is included as a chronic neurologic condition relevant to
-# overall vulnerability.
 Dementia_ICD10 <- c("F0", "G30", "G31")
 Dementia_ICPC <- "P70"
 
 
 
-
-###############################################################################
-# 1m. Other active cancer
-###############################################################################
-# Non-hematological active cancer diagnoses are included separately
-# from hematological cancer.
 Other_Active_Cancer_ICD10 <- c("C0", "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C80")
 Other_Active_Cancer_NCMP <- c("WEOA", "WEOB", "WEOC", "WBOC", "WBGM", "RAGG")
 
-
-###############################################################################
-# 1n. Impaired immunity
-###############################################################################
-# Conditions associated with impaired immune function are grouped
-# here as a separate risk-factor category.
 Impaired_immunity_ICD10 <- c("G35", "M05", "M08", "M06", "M07", "M09", "M13", "M14", "K50", "K51")
 
-
-###############################################################################
-# 2. Ascertain influenza risk factors from specialist care (NPR)
-###############################################################################
-# The Norwegian Patient Registry is used to identify hospital-based
-# diagnoses for women in the influenza pregnancy cohort.
-NPR <- read_delim("Path_to_EVENTS_NPR_SOM.csv", 
+NPR <- read_delim("N:/durable/vac4eu/CDMInstances/vac4eu_1052/EVENTS_NPR_SOM.csv", 
                   delim = ",", escape_double = FALSE, trim_ws = TRUE, locale = locale(encoding = "Latin1"))
 
-# Restrict NPR records to women in the influenza pregnancy cohort.
 NPR_flu <- NPR[NPR$person_id %in% pregnant_influenza$lopenr, ]
-# Keep only records with codes matching one of the prespecified risk
-# factor categories.
-NPR_flu <- NPR_flu[NPR_flu$event_code %in% transplantation_ICD10| NPR_flu$event_code %in% Chronic_lung_disease_ICD10| NPR_flu$event_code %in% Dementia_ICD10|
+NPR_flu1 <- NPR_flu[NPR_flu$event_code %in% transplantation_ICD10| NPR_flu$event_code %in% Chronic_lung_disease_ICD10| NPR_flu$event_code %in% Dementia_ICD10|
                       NPR_flu$event_code %in% Diabetes_ICD10 | NPR_flu$event_code %in% Heart_disease_ICD10 | NPR_flu$event_code %in% Hematological_cancer_ICD10|
                       NPR_flu$event_code %in% Immunodeficiency_ICD10| NPR_flu$event_code %in% Impaired_immunity_ICD10 | NPR_flu$event_code %in% kidney_failure_ICD10|
                       NPR_flu$event_code %in% liver_failure_ICD10| NPR_flu$event_code %in% neurology_ICD10| NPR_flu$event_code %in% Obesity_ICD10|
                       NPR_flu$event_code %in% Other_Active_Cancer_ICD10 | NPR_flu$event_code %in% Stroke_ICD10,]
 
-
-###############################################################################
-# 3. Prepare the influenza pregnancy cohort for linkage
-###############################################################################
-# Standardize the first column name so it can be merged with registry
-# records using a common person-level identifier.
 colnames(pregnant_influenza) [1] <- "person_id"
-# Merge cohort and NPR risk-factor records at the pregnancy level.
 merged <- merge(pregnant_influenza, NPR_flu1, all = T)
-
-# Initialize binary indicators for each risk-factor category.
 merged$risk_factor <- 0
 merged$lung_disease <- 0
 merged$Dementia <- 0
@@ -197,12 +70,6 @@ merged$cancer <- 0
 merged$stroke <- 0
 merged$transplantation <- 0
 
-
-###############################################################################
-# 4. Flag diagnoses recorded during the one-year look-back period
-###############################################################################
-# Each indicator is set to 1 when a qualifying diagnosis occurs within
-# the one-year period prior to the pregnancy-specific enrollment date.
 merged$lung_disease[merged$event_code %in% Chronic_lung_disease_ICD10 & ymd(merged$start_date_record) <= merged$enrollment_risk & ymd(merged$start_date_record) >= (merged$enrollment_risk - years(1))] <- 1
 merged$Dementia[merged$event_code %in% Dementia_ICD10 & ymd(merged$start_date_record) <= merged$enrollment_risk & ymd(merged$start_date_record) >= (merged$enrollment_risk - years(1))] <- 1
 merged$diabetes[merged$event_code %in% Diabetes_ICD10 & ymd(merged$start_date_record) <= merged$enrollment_risk & ymd(merged$start_date_record) >= (merged$enrollment_risk - years(1))] <- 1
@@ -218,12 +85,6 @@ merged$cancer[merged$event_code %in% Other_Active_Cancer_ICD10 & ymd(merged$star
 merged$stroke[merged$event_code %in% Stroke_ICD10 & ymd(merged$start_date_record) <= merged$enrollment_risk & ymd(merged$start_date_record) >= (merged$enrollment_risk - years(1))] <- 1
 merged$transplantation[merged$event_code %in% transplantation_ICD10 & ymd(merged$start_date_record) <= merged$enrollment_risk & ymd(merged$start_date_record) >= (merged$enrollment_risk - years(1))] <- 1
 
-
-###############################################################################
-# 5. Collapse diagnoses to the pregnancy level
-###############################################################################
-# A pregnancy-level identifier is used so repeated diagnoses for the same
-# pregnancy are summarized to a single binary indicator per risk factor.
 merged$Preg_id <- paste0(merged$person_id,"-", merged$LMP)
 merged <- merged %>% group_by(Preg_id) %>%
   mutate(lung_disease_final = max(lung_disease),
@@ -246,33 +107,27 @@ merged$risk_factor[merged$lung_disease_final ==1 | merged$Dementia_final ==1 |me
                      merged$obesity_final ==1 |merged$cancer_final ==1 |merged$stroke_final ==1 |merged$transplantation_final ==1 ] <- 1
 
 # Now we need to check KUHR for risk factors and procedures from NPR
-
-###############################################################################
-# 6. Ascertain influenza risk factors from primary care (KUHR)
-###############################################################################
-# KUHR records are used to capture diagnoses from general practice that
-# are not necessarily represented in NPR.
-KUHR_2015 <- read_delim("Path_to_EVENTS_KUHR_2015.csv", 
+KUHR_2015 <- read_delim("N:/durable/vac4eu/CDMInstances/vac4eu_1052/EVENTS_KUHR_2015.csv", 
                         delim = ",", escape_double = FALSE, trim_ws = TRUE, locale = locale(encoding = "Latin1"))
 KUHR_2015 <- KUHR_2015[KUHR_2015$person_id %in% pregnant_influenza$person_id,]
 KUHR_2015 <- KUHR_2015[grepl("R95|R96|P70|T89|T90|K74|K75|K76|K77|K78|K82|K83|K87|T82|K90|K91", KUHR_2015$event_code, ignore.case = T), ]
 
-KUHR_2016 <- read_delim("Path_to_EVENTS_KUHR_2016.csv", 
+KUHR_2016 <- read_delim("N:/durable/vac4eu/CDMInstances/vac4eu_1052/EVENTS_KUHR_2016.csv", 
                         delim = ",", escape_double = FALSE, trim_ws = TRUE, locale = locale(encoding = "Latin1"))
 KUHR_2016 <- KUHR_2016[KUHR_2016$person_id %in% pregnant_influenza$person_id,]
 KUHR_2016 <- KUHR_2016[grepl("R95|R96|P70|T89|T90|K74|K75|K76|K77|K78|K82|K83|K87|T82|K90|K91", KUHR_2016$event_code, ignore.case = T), ]
 
-KUHR_2017 <- read_delim("Path_to_EVENTS_KUHR_2017.csv", 
+KUHR_2017 <- read_delim("N:/durable/vac4eu/CDMInstances/vac4eu_1052/EVENTS_KUHR_2017.csv", 
                         delim = ",", escape_double = FALSE, trim_ws = TRUE, locale = locale(encoding = "Latin1"))
 KUHR_2017 <- KUHR_2017[KUHR_2017$person_id %in% pregnant_influenza$person_id,]
 KUHR_2017 <- KUHR_2017[grepl("R95|R96|P70|T89|T90|K74|K75|K76|K77|K78|K82|K83|K87|T82|K90|K91", KUHR_2017$event_code, ignore.case = T), ]
 
-KUHR_2018 <- read_delim("Path_to_EVENTS_KUHR_2018.csv", 
+KUHR_2018 <- read_delim("N:/durable/vac4eu/CDMInstances/vac4eu_1052/EVENTS_KUHR_2018.csv", 
                         delim = ",", escape_double = FALSE, trim_ws = TRUE, locale = locale(encoding = "Latin1"))
 KUHR_2018 <- KUHR_2018[KUHR_2018$person_id %in% pregnant_influenza$person_id,]
 KUHR_2018 <- KUHR_2018[grepl("R95|R96|P70|T89|T90|K74|K75|K76|K77|K78|K82|K83|K87|T82|K90|K91", KUHR_2018$event_code, ignore.case = T), ]
 
-KUHR_2019 <- read_delim("Path_to_EVENTS_KUHR_2019.csv", 
+KUHR_2019 <- read_delim("N:/durable/vac4eu/CDMInstances/vac4eu_1052/EVENTS_KUHR_2019.csv", 
                         delim = ",", escape_double = FALSE, trim_ws = TRUE, locale = locale(encoding = "Latin1"))
 KUHR_2019 <- KUHR_2019[KUHR_2019$person_id %in% pregnant_influenza$person_id,]
 KUHR_2019 <- KUHR_2019[grepl("R95|R96|P70|T89|T90|K74|K75|K76|K77|K78|K82|K83|K87|T82|K90|K91", KUHR_2019$event_code, ignore.case = T), ]
@@ -284,12 +139,6 @@ KUHR <- merge(KUHR, KUHR_2019, all = T)
 
 
 
-
-###############################################################################
-# 3. Prepare the influenza pregnancy cohort for linkage
-###############################################################################
-# Standardize the first column name so it can be merged with registry
-# records using a common person-level identifier.
 colnames(pregnant_influenza) [1] <- "person_id"
 merged1 <- merge(merged, KUHR, all = T)
 merged1$lung_disease[grepl("R95|R96", merged1$event_code, ignore.case = T) & ymd(merged1$start_date_record) <= merged1$enrollment_risk & ymd(merged1$start_date_record) >= (merged1$enrollment_risk - years(1)) & merged1$event_record_vocabulary == "ICPC"] <- 1
@@ -298,53 +147,24 @@ merged1$diabetes[grepl("T89|T90", merged1$event_code, ignore.case = T) & ymd(mer
 merged1$heart_disease[grepl("K74|K75|K76|K77|K78|K82|K83|K87", merged1$event_code, ignore.case = T) & ymd(merged1$start_date_record) <= merged1$enrollment_risk & ymd(merged1$start_date_record) >= (merged1$enrollment_risk - years(1)) & merged1$event_record_vocabulary == "ICPC"] <- 1
 merged1$obesity[grepl("T82", merged1$event_code, ignore.case = T) & ymd(merged1$start_date_record) <= merged1$enrollment_risk & ymd(merged1$start_date_record) >= (merged1$enrollment_risk - years(1)) & merged1$event_record_vocabulary == "ICPC"] <- 1
 merged1$stroke[grepl("K91|K90", merged1$event_code, ignore.case = T) & ymd(merged1$start_date_record) <= merged1$enrollment_risk & ymd(merged1$start_date_record) >= (merged1$enrollment_risk - years(1)) & merged1$event_record_vocabulary == "ICPC"] <- 1
-
-###############################################################################
-# 7. Save influenza analysis cohorts
-###############################################################################
-# The final influenza risk and no-risk pregnancy cohorts are written to
-# disk for downstream analyses.
 save(pregnant_flu_risk, file = "Pregnant_Influenza_Risk_Population.rdata")
 pregnant_flu_norisk <- merged[merged$risk_factor == 0,]
 save(pregnant_flu_norisk, file = "Pregnant_Influenza_NoRisk.rdata")
 
 ###################################################################################################################
-
-###############################################################################
-# 8. Repeat the workflow for the COVID-19 pregnancy cohort
-###############################################################################
-# The same risk-factor definition strategy is applied to the COVID-19
-# pregnancy cohort with updated calendar years.
-
-###############################################################################
-# 2. Ascertain influenza risk factors from specialist care (NPR)
-###############################################################################
-# The Norwegian Patient Registry is used to identify hospital-based
-# diagnoses for women in the influenza pregnancy cohort.
-NPR <- read_delim("Path_to_EVENTS_NPR_SOM.csv", 
+# NOw we do the same for the COVID-19 pregnant population
+NPR <- read_delim("N:/durable/vac4eu/CDMInstances/vac4eu_1052/EVENTS_NPR_SOM.csv", 
                   delim = ",", escape_double = FALSE, trim_ws = TRUE, locale = locale(encoding = "Latin1"))
 
-# Restrict NPR records to women in the COVID-19 pregnancy cohort.
 NPR_COVID <- NPR[NPR$person_id %in% pregnant_covid$person_id, ]
-# Keep only records with codes matching one of the prespecified risk
-# factor categories.
 NPR_COVID <- NPR_COVID[NPR_COVID$event_code %in% transplantation_ICD10| NPR_COVID$event_code %in% Chronic_lung_disease_ICD10| NPR_COVID$event_code %in% Dementia_ICD10|
                       NPR_COVID$event_code %in% Diabetes_ICD10 | NPR_COVID$event_code %in% Heart_disease_ICD10 | NPR_COVID$event_code %in% Hematological_cancer_ICD10|
                       NPR_COVID$event_code %in% Immunodeficiency_ICD10| NPR_COVID$event_code %in% Impaired_immunity_ICD10 | NPR_COVID$event_code %in% kidney_failure_ICD10|
                       NPR_COVID$event_code %in% liver_failure_ICD10| NPR_COVID$event_code %in% neurology_ICD10| NPR_COVID$event_code %in% Obesity_ICD10|
                       NPR_COVID$event_code %in% Other_Active_Cancer_ICD10 | NPR_COVID$event_code %in% Stroke_ICD10,]
 
-
-###############################################################################
-# 9. Prepare the COVID-19 pregnancy cohort for linkage
-###############################################################################
-# Standardize the identifier so registry records can be merged to the
-# pregnancy cohort.
 colnames(pregnant_covid) [1] <- "person_id"
-# Merge the COVID-19 cohort with NPR diagnoses.
 merged <- merge(pregnant_covid, NPR_COVID, all = T)
-
-# Initialize binary indicators for each risk-factor category.
 merged$risk_factor <- 0
 merged$lung_disease <- 0
 merged$Dementia <- 0
@@ -361,12 +181,6 @@ merged$cancer <- 0
 merged$stroke <- 0
 merged$transplantation <- 0
 
-
-###############################################################################
-# 4. Flag diagnoses recorded during the one-year look-back period
-###############################################################################
-# Each indicator is set to 1 when a qualifying diagnosis occurs within
-# the one-year period prior to the pregnancy-specific enrollment date.
 merged$lung_disease[merged$event_code %in% Chronic_lung_disease_ICD10 & ymd(merged$start_date_record) <= merged$enrollment_risk & ymd(merged$start_date_record) >= (merged$enrollment_risk - years(1))] <- 1
 merged$Dementia[merged$event_code %in% Dementia_ICD10 & ymd(merged$start_date_record) <= merged$enrollment_risk & ymd(merged$start_date_record) >= (merged$enrollment_risk - years(1))] <- 1
 merged$diabetes[merged$event_code %in% Diabetes_ICD10 & ymd(merged$start_date_record) <= merged$enrollment_risk & ymd(merged$start_date_record) >= (merged$enrollment_risk - years(1))] <- 1
@@ -382,36 +196,24 @@ merged$cancer[merged$event_code %in% Other_Active_Cancer_ICD10 & ymd(merged$star
 merged$stroke[merged$event_code %in% Stroke_ICD10 & ymd(merged$start_date_record) <= merged$enrollment_risk & ymd(merged$start_date_record) >= (merged$enrollment_risk - years(1))] <- 1
 merged$transplantation[merged$event_code %in% transplantation_ICD10 & ymd(merged$start_date_record) <= merged$enrollment_risk & ymd(merged$start_date_record) >= (merged$enrollment_risk - years(1))] <- 1
 
-
-###############################################################################
-# 9. Prepare the COVID-19 pregnancy cohort for linkage
-###############################################################################
-# Standardize the identifier so registry records can be merged to the
-# pregnancy cohort.
 colnames(pregnant_covid) [1] <- "person_id"
 # Now we need to check KUHR for risk factors and procedures from NPR
-
-###############################################################################
-# 10. Ascertain COVID-19 risk factors from primary care (KUHR)
-###############################################################################
-# KUHR is queried across calendar years 2020-2023 to identify chronic
-# diagnoses recorded in primary care.
-KUHR_2020 <- read_delim("Path_to_EVENTS_KUHR_2020.csv", 
+KUHR_2020 <- read_delim("N:/durable/vac4eu/CDMInstances/vac4eu_1052/EVENTS_KUHR_2020.csv", 
                         delim = ",", escape_double = FALSE, trim_ws = TRUE, locale = locale(encoding = "Latin1"))
 KUHR_2020 <- KUHR_2020[KUHR_2020$person_id %in% pregnant_covid$person_id,]
 KUHR_2020 <- KUHR_2020[grepl("R95|R96|P70|T89|T90|K74|K75|K76|K77|K78|K82|K83|K87|T82|K90|K91", KUHR_2020$event_code, ignore.case = T), ]
 
-KUHR_2021 <- read_delim("Path_to_EVENTS_KUHR_2021.csv", 
+KUHR_2021 <- read_delim("N:/durable/vac4eu/CDMInstances/vac4eu_1052/EVENTS_KUHR_2021.csv", 
                         delim = ",", escape_double = FALSE, trim_ws = TRUE, locale = locale(encoding = "Latin1"))
 KUHR_2021 <- KUHR_2021[KUHR_2021$person_id %in% pregnant_covid$person_id,]
 KUHR_2021 <- KUHR_2021[grepl("R95|R96|P70|T89|T90|K74|K75|K76|K77|K78|K82|K83|K87|T82|K90|K91", KUHR_2021$event_code, ignore.case = T), ]
 
-KUHR_2022 <- read_delim("Path_to_EVENTS_KUHR_2022.csv", 
+KUHR_2022 <- read_delim("N:/durable/vac4eu/CDMInstances/vac4eu_1052/EVENTS_KUHR_2022.csv", 
                         delim = ",", escape_double = FALSE, trim_ws = TRUE, locale = locale(encoding = "Latin1"))
 KUHR_2022 <- KUHR_2022[KUHR_2022$person_id %in% pregnant_covid$person_id,]
 KUHR_2022 <- KUHR_2022[grepl("R95|R96|P70|T89|T90|K74|K75|K76|K77|K78|K82|K83|K87|T82|K90|K91", KUHR_2022$event_code, ignore.case = T), ]
 
-KUHR_2023 <- read_delim("Path_to_EVENTS_KUHR_2023.csv", 
+KUHR_2023 <- read_delim("N:/durable/vac4eu/CDMInstances/vac4eu_1052/EVENTS_KUHR_2023.csv", 
                         delim = ",", escape_double = FALSE, trim_ws = TRUE, locale = locale(encoding = "Latin1"))
 KUHR_2023 <- KUHR_2023[KUHR_2023$person_id %in% pregnant_covid$person_id,]
 KUHR_2023 <- KUHR_2023[grepl("R95|R96|P70|T89|T90|K74|K75|K76|K77|K78|K82|K83|K87|T82|K90|K91", KUHR_2023$event_code, ignore.case = T), ]
@@ -456,24 +258,12 @@ pregnant_covid_norisk <- merged1[merged1$risk_factor == 0,]
 pregnant_covid_norisk <- pregnant_covid_norisk[!is.na(pregnant_covid_norisk$Preg_id),]
 pregnant_covid_risk <- pregnant_covid_risk[!is.na(pregnant_covid_risk$Preg_id),]
 
-
-###############################################################################
-# 11. Save intermediate COVID-19 risk and no-risk cohorts
-###############################################################################
-# These intermediate files are retained before exclusion of prior
-# SARS-CoV-2 infection and prior vaccination.
 save(pregnant_covid_risk, file = "Pregnant_COVID_Risk_Population_YETExclusion.rdata")
 save(pregnant_covid_norisk, file = "Pregnant_COVID_NoRisk_Population_YETEXCLUSION.rdata")
 
 # Now check NPR
 
-
-###############################################################################
-# 12. Exclude women with prior SARS-CoV-2 infection in NPR
-###############################################################################
-# The NPR SOM file is searched for U071-coded COVID-19 diagnoses in the
-# one-year look-back period before cohort enrollment.
-npr_som <- read_delim("Path_to_EVENTS_NPR_SOM.csv", 
+npr_som <- read_delim("N:/durable/vac4eu/CDMInstances/vac4eu_1052/EVENTS_NPR_SOM.csv", 
                       delim = ",", escape_double = FALSE, trim_ws = TRUE, locale = locale(encoding = "Latin1"))
 
 npr_som <- npr_som[grepl("u071", npr_som$event_code, ignore.case = T),]
@@ -495,31 +285,25 @@ save(pregnant_covid_risk, file = "Pregnant_COVID19_Population_risk.rdata")
 save(pregnant_covid_norisk, file = "Pregnant_COVID19_Population_norisk.rdata")
 
 # now check KUHR for diagnoses in the look back period
-
-###############################################################################
-# 13. Exclude women with prior SARS-CoV-2 infection in KUHR
-###############################################################################
-# KUHR is searched for R992 codes across the look-back window to remove
-# individuals with evidence of prior COVID-19 diagnosis in primary care.
-kuhr_2020 <- read_delim("Path_to_EVENTS_KUHR_2020.csv", delim = ",")
+kuhr_2020 <- read_delim("N:/durable/vac4eu/CDMInstances/vac4eu_1052/EVENTS_KUHR_2020.csv", delim = ",")
 kuhr_2020 <- kuhr_2020[grepl("R992", kuhr_2020$event_code, ignore.case = T),]
 kuhr_2020_risk <- kuhr_2020[kuhr_2020$person_id %in% pregnant_covid_risk$person_id,]
 kuhr_2020_norisk <- kuhr_2020[kuhr_2020$person_id %in% pregnant_covid_norisk$person_id,]
 rm(kuhr_2020)
 gc()
-kuhr_2021 <- read_delim("Path_to_EVENTS_KUHR_2021.csv", delim = ",")
+kuhr_2021 <- read_delim("N:/durable/vac4eu/CDMInstances/vac4eu_1052/EVENTS_KUHR_2021.csv", delim = ",")
 kuhr_2021 <- kuhr_2021[grepl("R992", kuhr_2021$event_code, ignore.case = T),]
 kuhr_2021_risk <- kuhr_2021[kuhr_2021$person_id %in% pregnant_covid_risk$person_id,]
 kuhr_2021_norisk <- kuhr_2021[kuhr_2021$person_id %in% pregnant_covid_norisk$person_id,]
 rm(kuhr_2021)
 gc()
-kuhr_2022 <- read_delim("Path_to_EVENTS_KUHR_2022.csv", delim = ",")
+kuhr_2022 <- read_delim("N:/durable/vac4eu/CDMInstances/vac4eu_1052/EVENTS_KUHR_2022.csv", delim = ",")
 kuhr_2022 <- kuhr_2022[grepl("R992", kuhr_2022$event_code, ignore.case = T),]
 kuhr_2022_risk <- kuhr_2022[kuhr_2022$person_id %in% pregnant_covid_risk$person_id,]
 kuhr_2022_norisk <- kuhr_2022[kuhr_2022$person_id %in% pregnant_covid_norisk$person_id,]
 rm(kuhr_2022)
 gc()
-kuhr_2023 <- read_delim("Path_to_EVENTS_KUHR_2023.csv", delim = ",")
+kuhr_2023 <- read_delim("N:/durable/vac4eu/CDMInstances/vac4eu_1052/EVENTS_KUHR_2023.csv", delim = ",")
 kuhr_2023 <- kuhr_2023[grepl("R992", kuhr_2023$event_code, ignore.case = T),]
 kuhr_2023_risk <- kuhr_2023[kuhr_2023$person_id %in% pregnant_covid_risk$person_id,]
 kuhr_2023_norisk <- kuhr_2023[kuhr_2023$person_id %in% pregnant_covid_norisk$person_id,]
@@ -548,7 +332,7 @@ pregnant_covid_risk <- pregnant_covid_risk[!pregnant_covid_risk$person_id %in% c
 pregnant_covid_norisk <- pregnant_covid_norisk[!pregnant_covid_norisk$person_id %in% covid_before_norisk$person_id,] # 628,748
 
 # now check MSIS
-msis <- read_delim("Path_to_H-602-E_MSIS-data_2024-09.csv", 
+msis <- read_delim("N:/durable/VAC4EU datasets/Delivery June-Sep 2024/FHI/MSIS/H-602-E_MSIS-data_2024-09/H-602-E_MSIS-data_2024-09.csv", 
                    delim = ";", escape_double = FALSE, trim_ws = TRUE,locale = locale(encoding = "Latin1"))
 
 msis_risk <- msis[msis$KOBLINGSNOEKKEL %in% pregnant_covid_risk$person_id,]
@@ -567,8 +351,8 @@ referece_msis_norisk <- referece_msis[referece_msis$person_id %in% merged_norisk
 merged_risk <- merge(merged_risk, referece_msis_risk, all = T)
 merged_norisk <- merge(merged_norisk, referece_msis_norisk, all = T)
 
-merged_risk$test <- as.Date(merged_risk$ref_date, format = "%Y-%m-%d") + merged_risk$Prï¿½vedatoDiffDager
-merged_norisk$test <- as.Date(merged_norisk$ref_date, format = "%Y-%m-%d") + merged_norisk$Prï¿½vedatoDiffDager
+merged_risk$test <- as.Date(merged_risk$ref_date, format = "%Y-%m-%d") + merged_risk$Pr�vedatoDiffDager
+merged_norisk$test <- as.Date(merged_norisk$ref_date, format = "%Y-%m-%d") + merged_norisk$Pr�vedatoDiffDager
 merged_risk <- merged_risk[!is.na(merged_risk$test),]
 merged_norisk <- merged_norisk[!is.na(merged_norisk$test),]
 covid_before_risk <- merged_risk[merged_risk$test <= merged_risk$enrollment_risk & merged_risk$test >= (merged_risk$enrollment_risk - years(1)),]
@@ -576,21 +360,13 @@ covid_before_norisk <- merged_norisk[merged_norisk$test <= merged_norisk$enrollm
 pregnant_covid_risk <- pregnant_covid_risk[!pregnant_covid_risk$person_id %in% covid_before_risk$person_id,] # 627,553
 pregnant_covid_norisk <- pregnant_covid_norisk[!pregnant_covid_norisk$person_id %in% covid_before_norisk$person_id,] # 627,553
 # Now let's check for prior vaccination
-
-###############################################################################
-# 15. Exclude prior COVID-19 vaccination in SYSVAK
-###############################################################################
-# Vaccination records are used to remove women vaccinated after LMP but
-# before the non-risk enrollment date.
 covid.codes <- c("J07BN02", 'J07BN01', 'J07BX03', 'J07BN04', 'J07BN03')
-SYSVAK <- read_csv("Path_to_VACCINES.csv")
+SYSVAK <- read_csv("N:/durable/vac4eu/CDMInstances/vac4eu_1052/VACCINES.csv")
 SYSVAK <- SYSVAK[SYSVAK$vx_atc %in% covid.codes, ]
 SYSVAK1 <- SYSVAK[SYSVAK$person_id %in% pregnant_covid_norisk$person_id,]
 merged <- merge(SYSVAK1, pregnant_covid_norisk, all = T)
 vaccinated_before <- merged[ymd(merged$vx_admin_date) < merged$enrollment_norisk & ymd(merged$vx_admin_date) > merged$LMP,]
 vaccinated_before <- vaccinated_before[!is.na(vaccinated_before$vx_admin_date),]
-# Remove women with evidence of COVID-19 vaccination in the relevant
-# pre-enrollment period.
 pregnant_covid_norisk <- pregnant_covid_norisk[!pregnant_covid_norisk$person_id %in% vaccinated_before$person_id,] # 552,756
 save(pregnant_covid_norisk, file = "Pregnant_COVID19_NoRisk_Population.rdata")
 

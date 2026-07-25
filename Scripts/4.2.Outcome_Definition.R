@@ -1,29 +1,23 @@
-
-###############################################################################
-# Script: Outcome_Definition.R
-# Purpose: Define influenza and COVID-19 vaccination outcomes for study cohorts.
-###############################################################################
-
 library(lubridate)
 library(readr)
 library(dplyr)
 
-load("Path_to_Old_Covid_Population_MH.rdata")
-load("Path_to_Pregnant_Influenza_Risk_Population_MH.rdata")
-load("Path_to_Pregnant_Influenza_NoRisk_Population_MH.rdata")
-load("Path_to_Pregnant_Covid_NoRisk_Population_MH.rdata")
-load("Path_to_Pregnant_Covid_Risk_Population_MH.rdata")
-load("Path_to_Old_Influenza_Population_MH.rdata")
+load("M:/p1921-mahmoudz/Mahmoud/Vaccine_Uptake/Scripts/Old_Covid_Population_MH.rdata")
+load("M:/p1921-mahmoudz/Mahmoud/Vaccine_Uptake/Scripts/Pregnant_Influenza_Risk_Population_MH.rdata")
+load("M:/p1921-mahmoudz/Mahmoud/Vaccine_Uptake/Scripts/Pregnant_Influenza_NoRisk_Population_MH.rdata")
+load("M:/p1921-mahmoudz/Mahmoud/Vaccine_Uptake/Scripts/Pregnant_Covid_NoRisk_Population_MH.rdata")
+load("M:/p1921-mahmoudz/Mahmoud/Vaccine_Uptake/Scripts/Pregnant_Covid_Risk_Population_MH.rdata")
+load("M:/p1921-mahmoudz/Mahmoud/Vaccine_Uptake/Scripts/Old_Influenza_Population_MH.rdata")
 
 flu.codes <- c("J07BB01", "J07BB02", "J07BB03")
 covid.codes <- c("J07BN02", 'J07BN01', 'J07BX03', 'J07BN04', 'J07BN03')
 
-SYSVAK <- read_csv("Path_to_VACCINES.csv")
+SYSVAK <- read_csv("N:/durable/vac4eu/CDMInstances/vac4eu_1052/VACCINES.csv")
 SYSVAK <- SYSVAK[SYSVAK$person_id %in% old_covid$person_id | SYSVAK$person_id %in% old_flu$person_id |
                    SYSVAK$person_id %in% pregnant_covid_risk$person_id | SYSVAK$person_id %in% pregnant_covid_norisk$person_id |
                    SYSVAK$person_id %in% pregnant_flu_risk$person_id |SYSVAK$person_id %in% pregnant_flu_norisk$person_id ,]
 
-###############################################################################
+###########################################################################################################################
 # We start with the Old Adult Flu population
 SYSVAK_OLD_FLU <- SYSVAK[SYSVAK$person_id %in% old_flu$person_id,]
 SYSVAK_OLD_FLU <- SYSVAK_OLD_FLU[SYSVAK_OLD_FLU$vx_atc %in% flu.codes,]
@@ -63,7 +57,7 @@ old_flu$all.seasons <- 0
 old_flu$all.seasons[ old_flu$season1 == 1 | old_flu$season2 == 1 |old_flu$season3 == 1] <- 1
 
 save(old_flu, file = "Old_flu_MentalHealth_Vaccine.rdata")
-###############################################################################
+###########################################################################################################################
 # We do the same for the Old Adult covid population but yearly instead of seasons
 SYSVAK_OLD_COVID <- SYSVAK[SYSVAK$person_id %in% old_covid$person_id,]
 SYSVAK_OLD_COVID <- SYSVAK_OLD_COVID[SYSVAK_OLD_COVID$vx_atc %in% covid.codes,]
@@ -103,7 +97,7 @@ old_covid$all.seasons <- 0
 old_covid$all.seasons[ old_covid$season1 == 1 | old_covid$season2 == 1 |old_covid$season3 == 1] <- 1
 
 save(old_covid, file = "old_COVID_MentalHealth_Vaccine.rdata")
-###############################################################################
+###########################################################################################################################
 # We do the same for the pregnant covid population but yearly instead of seasons
 SYSVAK_PREGNANT_COVID_risk <- SYSVAK[SYSVAK$person_id %in% pregnant_covid_risk$person_id,]
 SYSVAK_PREGNANT_COVID_risk <- SYSVAK_PREGNANT_COVID_risk[SYSVAK_PREGNANT_COVID_risk$vx_atc %in% covid.codes,]
@@ -143,7 +137,7 @@ pregnant_covid_norisk <- merge(pregnant_covid_norisk, merged, all = T)
 
 pregnant_covid_norisk$vaccinated[is.na(pregnant_covid_norisk$vaccinated)] <- 0
 save(pregnant_covid_norisk, file = "Pregnant_COVID_NoRisk_MentalHealth_Vaccine.rdata")
-###############################################################################
+###########################################################################################################################
 # We do the same for the pregnant covid population but yearly instead of seasons
 SYSVAK_PREGNANT_flu_norisk <- SYSVAK[SYSVAK$person_id %in% pregnant_flu_norisk$person_id,]
 SYSVAK_PREGNANT_flu_norisk <- SYSVAK_PREGNANT_flu_norisk[SYSVAK_PREGNANT_flu_norisk$vx_atc %in% flu.codes,]
@@ -164,7 +158,7 @@ pregnant_flu_norisk <- merge(pregnant_flu_norisk, merged, all = T)
 
 pregnant_flu_norisk$vaccinated[is.na(pregnant_flu_norisk$vaccinated)] <- 0
 save(pregnant_flu_norisk, file = "Pregnant_FLU_NoRisk_MentalHealth_Vaccine.rdata")
-###############################################################################
+###########################################################################################################################
 # We do the same for the pregnant covid population but yearly instead of seasons
 SYSVAK_PREGNANT_flu_risk <- SYSVAK[SYSVAK$person_id %in% pregnant_flu_risk$person_id,]
 SYSVAK_PREGNANT_flu_risk <- SYSVAK_PREGNANT_flu_risk[SYSVAK_PREGNANT_flu_risk$vx_atc %in% flu.codes,]
