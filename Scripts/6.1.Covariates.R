@@ -1,3 +1,10 @@
+################################################################################
+# Script: 6.1.Covariates.R
+#
+# Purpose:
+#   Compile the needed covariates (including missing values) for older adult and
+#   pregnant populations included in the influenza and COVID-19 vaccine cohorts.
+################################################################################
 library(dplyr)
 library(lubridate)
 library(haven)
@@ -6,8 +13,8 @@ library(readr)
 ################################################################
 ###################Covariates for Old Adults####################
 ################################################################
-load("/ess/p1921/home/p1921-mahmoudz/Mahmoud/Vaccine_Uptake/New_run_20260117/Scripts/Old_COVID_Population_MH_corrected.rdata")
-load("/ess/p1921/home/p1921-mahmoudz/Mahmoud/Vaccine_Uptake/New_run_20260117/Scripts/Old_Influenza_Population_MH_corrected.rdata")
+load("Path_to_Old_COVID_Population_MH_corrected.rdata")
+load("Path_to_Old_Influenza_Population_MH_corrected.rdata")
 old_covid$Any_MH <- ifelse(old_covid$depression_mh == 1| old_covid$anxiety_mh == 1| old_covid$bipolar_mh ==1|
                              old_covid$PTSD_mh == 1| old_covid$OCD_mh == 1| old_covid$ADHD_mh == 1, 1, 0)
 old_flu$Any_MH <- ifelse(old_flu$depression_mh == 1| old_flu$anxiety_mh == 1| old_flu$bipolar_mh ==1|
@@ -34,7 +41,7 @@ old_flu$age_at_enrollment_categorized[old_flu$age_at_enrollment >= 81] <- ">81"
 
 ################################################################
 # County 
-SSB <- read_sas("/ess/p1921/data/durable/VAC4EU datasets/Delivery June-Sep 2024/SSB/w22_0605_UiO_2024_juni/w22_0605_bostedsfylke.sas7bdat")
+SSB <- read_sas("Path_to_w22_0605_bostedsfylke.sas7bdat")
 SSB$county_2017 <- NA
 SSB$county_2021 <- NA
 SSB$county_2017[SSB$bostedsfylke_2017 == "01"] <- "Eastern"
@@ -166,7 +173,7 @@ Other_Active_Cancer_NCMP <- c("WEOA", "WEOB", "WEOC", "WBOC", "WBGM", "RAGG")
 
 Impaired_immunity_ICD10 <- c("G35", "M05", "M08", "M06", "M07", "M09", "M13", "M14", "K50", "K51")
 
-NPR <- read_delim("/ess/p1921/data/durable/vac4eu/CDMInstances/vac4eu_1052/EVENTS_NPR_SOM.csv", 
+NPR <- read_delim("Path_to_EVENTS_NPR_SOM.csv", 
                   delim = ",", escape_double = FALSE, trim_ws = TRUE, locale = locale(encoding = "Latin1"))
 
 NPR_flu <- NPR[NPR$person_id %in% old_flu$person_id, ]
@@ -229,27 +236,27 @@ merged$risk_factor[merged$lung_disease_final ==1 | merged$Dementia_final ==1 |me
                      merged$obesity_final ==1 |merged$cancer_final ==1 |merged$stroke_final ==1 |merged$transplantation_final ==1 ] <- 1
 
 # Now we need to check KUHR for risk factors and procedures from NPR
-KUHR_2015 <- read_delim("/ess/p1921/data/durable/vac4eu/CDMInstances/vac4eu_1052/EVENTS_KUHR_2015.csv", 
+KUHR_2015 <- read_delim("Path_to_EVENTS_KUHR_2015.csv", 
                         delim = ",", escape_double = FALSE, trim_ws = TRUE, locale = locale(encoding = "Latin1"))
 KUHR_2015 <- KUHR_2015[KUHR_2015$person_id %in% old_flu$person_id,]
 KUHR_2015 <- KUHR_2015[grepl("R95|R96|P70|T89|T90|K74|K75|K76|K77|K78|K82|K83|K87|T82|K90|K91", KUHR_2015$event_code, ignore.case = T), ]
 gc()
-KUHR_2016 <- read_delim("/ess/p1921/data/durable/vac4eu/CDMInstances/vac4eu_1052/EVENTS_KUHR_2016.csv", 
+KUHR_2016 <- read_delim("Path_to_EVENTS_KUHR_2016.csv", 
                         delim = ",", escape_double = FALSE, trim_ws = TRUE, locale = locale(encoding = "Latin1"))
 KUHR_2016 <- KUHR_2016[KUHR_2016$person_id %in% old_flu$person_id,]
 KUHR_2016 <- KUHR_2016[grepl("R95|R96|P70|T89|T90|K74|K75|K76|K77|K78|K82|K83|K87|T82|K90|K91", KUHR_2016$event_code, ignore.case = T), ]
 gc()
-KUHR_2017 <- read_delim("/ess/p1921/data/durable/vac4eu/CDMInstances/vac4eu_1052/EVENTS_KUHR_2017.csv", 
+KUHR_2017 <- read_delim("Path_to_EVENTS_KUHR_2017.csv", 
                         delim = ",", escape_double = FALSE, trim_ws = TRUE, locale = locale(encoding = "Latin1"))
 KUHR_2017 <- KUHR_2017[KUHR_2017$person_id %in% old_flu$person_id,]
 KUHR_2017 <- KUHR_2017[grepl("R95|R96|P70|T89|T90|K74|K75|K76|K77|K78|K82|K83|K87|T82|K90|K91", KUHR_2017$event_code, ignore.case = T), ]
 gc()
-KUHR_2018 <- read_delim("/ess/p1921/data/durable/vac4eu/CDMInstances/vac4eu_1052/EVENTS_KUHR_2018.csv", 
+KUHR_2018 <- read_delim("Path_to_EVENTS_KUHR_2018.csv", 
                         delim = ",", escape_double = FALSE, trim_ws = TRUE, locale = locale(encoding = "Latin1"))
 KUHR_2018 <- KUHR_2018[KUHR_2018$person_id %in% old_flu$person_id,]
 KUHR_2018 <- KUHR_2018[grepl("R95|R96|P70|T89|T90|K74|K75|K76|K77|K78|K82|K83|K87|T82|K90|K91", KUHR_2018$event_code, ignore.case = T), ]
 gc()
-KUHR_2019 <- read_delim("/ess/p1921/data/durable/vac4eu/CDMInstances/vac4eu_1052/EVENTS_KUHR_2019.csv", 
+KUHR_2019 <- read_delim("Path_to_EVENTS_KUHR_2019.csv", 
                         delim = ",", escape_double = FALSE, trim_ws = TRUE, locale = locale(encoding = "Latin1"))
 KUHR_2019 <- KUHR_2019[KUHR_2019$person_id %in% old_flu$person_id,]
 KUHR_2019 <- KUHR_2019[grepl("R95|R96|P70|T89|T90|K74|K75|K76|K77|K78|K82|K83|K87|T82|K90|K91", KUHR_2019$event_code, ignore.case = T), ]
@@ -270,7 +277,7 @@ merged2 <- merged1[,c("person_id", "risk_factor")]
 old_flu <- merge(old_flu, merged2, all = T)
 save(old_covid, file = "Old_covid_Covariates.rdata")
 
-NPR <- read_delim("/ess/p1921/data/durable/vac4eu/CDMInstances/vac4eu_1052/EVENTS_NPR_SOM.csv", 
+NPR <- read_delim("Path_to_EVENTS_NPR_SOM.csv", 
                   delim = ",", escape_double = FALSE, trim_ws = TRUE, locale = locale(encoding = "Latin1"))
 
 NPR_covid <- NPR[NPR$person_id %in% old_covid$person_id, ]
@@ -333,22 +340,22 @@ merged$risk_factor[merged$lung_disease_final ==1 | merged$Dementia_final ==1 |me
                      merged$obesity_final ==1 |merged$cancer_final ==1 |merged$stroke_final ==1 |merged$transplantation_final ==1 ] <- 1
 
 # Now we need to check KUHR for risk factors and procedures from NPR
-KUHR_2020 <- read_delim("/ess/p1921/data/durable/vac4eu/CDMInstances/vac4eu_1052/EVENTS_KUHR_2020.csv", 
+KUHR_2020 <- read_delim("Path_to_EVENTS_KUHR_2020.csv", 
                         delim = ",", escape_double = FALSE, trim_ws = TRUE, locale = locale(encoding = "Latin1"))
 KUHR_2020 <- KUHR_2020[KUHR_2020$person_id %in% old_flu$person_id,]
 KUHR_2020 <- KUHR_2020[grepl("R95|R96|P70|T89|T90|K74|K75|K76|K77|K78|K82|K83|K87|T82|K90|K91", KUHR_2020$event_code, ignore.case = T), ]
 gc()
-KUHR_2021 <- read_delim("/ess/p1921/data/durable/vac4eu/CDMInstances/vac4eu_1052/EVENTS_KUHR_2021.csv", 
+KUHR_2021 <- read_delim("Path_to_EVENTS_KUHR_2021.csv", 
                         delim = ",", escape_double = FALSE, trim_ws = TRUE, locale = locale(encoding = "Latin1"))
 KUHR_2021 <- KUHR_2021[KUHR_2021$person_id %in% old_flu$person_id,]
 KUHR_2021 <- KUHR_2021[grepl("R95|R96|P70|T89|T90|K74|K75|K76|K77|K78|K82|K83|K87|T82|K90|K91", KUHR_2021$event_code, ignore.case = T), ]
 gc()
-KUHR_2022 <- read_delim("/ess/p1921/data/durable/vac4eu/CDMInstances/vac4eu_1052/EVENTS_KUHR_2022.csv", 
+KUHR_2022 <- read_delim("Path_to_EVENTS_KUHR_2022.csv", 
                         delim = ",", escape_double = FALSE, trim_ws = TRUE, locale = locale(encoding = "Latin1"))
 KUHR_2022 <- KUHR_2022[KUHR_2022$person_id %in% old_flu$person_id,]
 KUHR_2022 <- KUHR_2022[grepl("R95|R96|P70|T89|T90|K74|K75|K76|K77|K78|K82|K83|K87|T82|K90|K91", KUHR_2022$event_code, ignore.case = T), ]
 gc()
-KUHR_2023 <- read_delim("/ess/p1921/data/durable/vac4eu/CDMInstances/vac4eu_1052/EVENTS_KUHR_2023.csv", 
+KUHR_2023 <- read_delim("Path_to_EVENTS_KUHR_2023.csv", 
                         delim = ",", escape_double = FALSE, trim_ws = TRUE, locale = locale(encoding = "Latin1"))
 KUHR_2023 <- KUHR_2023[KUHR_2023$person_id %in% old_flu$person_id,]
 KUHR_2023 <- KUHR_2023[grepl("R95|R96|P70|T89|T90|K74|K75|K76|K77|K78|K82|K83|K87|T82|K90|K91", KUHR_2023$event_code, ignore.case = T), ]
@@ -369,7 +376,7 @@ old_covid <- merge(old_covid, merged2, all = T)
 save(old_covid, file = "Old_covid_Covariates.rdata")
 ###################################################################################
 # Income
-SSB <- read_sas("/ess/p1921/data/durable/VAC4EU datasets/Delivery June-Sep 2024/SSB/w22_0605_UiO_2024_juni/w22_0605_inntekt.sas7bdat")
+SSB <- read_sas("Path_to_w22_0605_inntekt.sas7bdat")
 SSB$income_2017 <- NA
 SSB$income_2021 <- NA
 SSB$income_2017[SSB$aargang == "2017"] <- SSB$wlonn[SSB$aargang == "2017"]
@@ -395,11 +402,11 @@ save(old_flu, file = "Old_flu_Covariates.rdata")
 #############################Covariates for pregnancy#################################
 ######################################################################################
 # Income
-SSB <- read_sas("/ess/p1921/data/durable/VAC4EU datasets/Delivery June-Sep 2024/SSB/w22_0605_UiO_2024_juni/w22_0605_inntekt.sas7bdat")
-load("/ess/p1921/home/p1921-mahmoudz/Mahmoud/Vaccine_Uptake/New_run_20260117/Pregnant_COVID_Risk_Uptake.rdata")
-load("/ess/p1921/home/p1921-mahmoudz/Mahmoud/Vaccine_Uptake/New_run_20260117/Pregnant_COVID_NoRisk_Uptake.rdata")
-load("/ess/p1921/home/p1921-mahmoudz/Mahmoud/Vaccine_Uptake/New_run_20260117/Pregnant_Influenza_Risk_Uptake.rdata")
-load("/ess/p1921/home/p1921-mahmoudz/Mahmoud/Vaccine_Uptake/New_run_20260117/Pregnant_Influenza_NoRisk_Uptake.rdata")
+SSB <- read_sas("Path_to_w22_0605_inntekt.sas7bdat")
+load("Path_to_Pregnant_COVID_Risk_Uptake.rdata")
+load("Path_to_Pregnant_COVID_NoRisk_Uptake.rdata")
+load("Path_to_Pregnant_Influenza_Risk_Uptake.rdata")
+load("Path_to_Pregnant_Influenza_NoRisk_Uptake.rdata")
 
 SSB$income_2017 <- NA
 SSB$income_2021 <- NA
@@ -431,7 +438,7 @@ pregnant_covid_risk <- merge(pregnant_covid_risk, SSB_preg_risk_covid, all = T)
 pregnant_covid_norisk <- merge(pregnant_covid_norisk, SSB_preg_norisk_covid, all = T)
 ######################################################################################
 # County
-SSB <- read_sas("/ess/p1921/data/durable/VAC4EU datasets/Delivery June-Sep 2024/SSB/w22_0605_UiO_2024_juni/w22_0605_bostedsfylke.sas7bdat")
+SSB <- read_sas("Path_to_w22_0605_bostedsfylke.sas7bdat")
 SSB$county_2017 <- NA
 SSB$county_2021 <- NA
 SSB$county_2017[SSB$bostedsfylke_2017 == "01"] <- "Eastern"
@@ -483,8 +490,8 @@ pregnant_covid_risk <- merge(pregnant_covid_risk, SSB_preg_risk_covid, all = T)
 pregnant_covid_norisk <- merge(pregnant_covid_norisk, SSB_preg_norisk_covid, all = T)
 #############################################################################
 # Age at enrollment
-SSB <- read_sas("N:/durable/VAC4EU datasets/Delivery June-Sep 2024/SSB/w22_0605_UiO_2024_juni/w22_0605_faste_opplysninger.sas7bdat")
-reference <- read.csv("N:/durable/VAC4EU datasets/Delivery June-Sep 2024/Reference_dates_SSB.csv")
+SSB <- read_sas("Path_to_w22_0605_faste_opplysninger.sas7bdat")
+reference <- read.csv("Path_to_Reference_dates_SSB.csv")
 SSB$birth_date <- as.Date(reference$ref_date) + SSB$foedselsdato_delta
 
 SSB_flu_risk <- SSB[SSB$KOBLINGSNOEKKEL %in% pregnant_flu_risk$person_id,]
@@ -547,7 +554,7 @@ pregnant_flu_norisk$age_at_enrollment_categorized[pregnant_flu_norisk$age_at_enr
 pregnant_flu_norisk$age_at_enrollment_categorized[pregnant_flu_norisk$age_at_enrollment >= 41] <- ">41"
 #############################################################################
 # Country of birth
-SSB <- read_sas("/ess/p1921/data/durable/VAC4EU datasets/Delivery June-Sep 2024/SSB/w22_0605_UiO_2024_juni/w22_0605_faste_opplysninger.sas7bdat")
+SSB <- read_sas("Path_to_w22_0605_faste_opplysninger.sas7bdat")
 Norwegian <- "000"
 West_North_Central <- c("101", "102", "103", "104", "105", "106", "112","114",'117','121','127','128','129','130','139','141','144',
                         '153', '162','163', '164')
@@ -622,7 +629,7 @@ pregnant_covid_norisk$smoking[pregnant_covid_norisk$MOR_ROYKTE_1_TRIMESTER == 2]
 pregnant_covid_norisk$smoking[pregnant_covid_norisk$MOR_ROYKTE_1_TRIMESTER == 3] <- "Daily"
 #################################################################################
 # Profession
-SSB <- read_sas("/ess/p1921/data/durable/VAC4EU datasets/Delivery June-Sep 2024/SSB/w22_0605_UiO_2024_juni/w22_0605_regsys_2017.sas7bdat")
+SSB <- read_sas("Path_to_w22_0605_regsys_2017.sas7bdat")
 
 SSB <- SSB %>%
   mutate(
@@ -651,7 +658,7 @@ colnames(SSB_preg_norisk_flu)[1] <- "person_id"
 pregnant_flu_risk <- merge(pregnant_flu_risk, SSB_preg_risk_flu, all = T)
 pregnant_flu_norisk <- merge(pregnant_flu_norisk, SSB_preg_norisk_flu, all = T)
 
-SSB <- read_sas("/ess/p1921/data/durable/VAC4EU datasets/Delivery June-Sep 2024/SSB/w22_0605_UiO_2024_juni/w22_0605_regsys_2021.sas7bdat")
+SSB <- read_sas("Path_to_w22_0605_regsys_2021.sas7bdat")
 
 SSB <- SSB %>%
   mutate(
