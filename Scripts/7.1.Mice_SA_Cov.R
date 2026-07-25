@@ -1,11 +1,19 @@
-library(dplyr)
+################################################################################
+# Script: 7.1.Mice_SA_Cov.R
+#
+# Purpose:
+#   Impute missing values in covariates needed for the primary analysis
+#   of older adult and pregnant populations included in the influenza and
+#   COVID-19 vaccine cohorts. This is done in the sensitivity analysis 
+#   redefining some covariates as confounders and not mediators.
+################################################################################library(dplyr)
 library(lubridate)
 library(haven)
 library(mice)
 library(data.table)
 
 # Since age was not properly captured, we need to fix it
-load("M:/p1921-mahmoudz/Mahmoud/Vaccine_Uptake/New_run_20260117/Scripts/Pregnant_flu_risk_covariates.rdata")
+load("Path_to_Pregnant_flu_risk_covariates.rdata")
 
 # First we calculate the percent missingness
 cov_preg_flu_risk <- pregnant_flu_risk[, c("Preg_id","age_at_enrollment_categorized", "county_2017", "country_of_birth", "smoking", "parity", "profession", "income_2017_cat","all.seasons", "mental" )]
@@ -22,7 +30,7 @@ cov_preg_flu_risk <- cov_preg_flu_risk %>% group_by(Preg_id) %>%
 
 cov_preg_flu_risk <- cov_preg_flu_risk[!duplicated(cov_preg_flu_risk$Preg_id),]
 # fix age and MH
-load("M:/p1921-mahmoudz/Mahmoud/Vaccine_Uptake/New_run_20260117/Scripts/Pregnant_Influenza_Risk_NoDuplicates.rdata")
+load("Path_to_Pregnant_Influenza_Risk_NoDuplicates.rdata")
 cov_preg_flu_risk <- cov_preg_flu_risk[cov_preg_flu_risk$Preg_id %in% pregnant_flu_risk$Preg_id,]
 cov_preg_flu_risk$mental <- pregnant_flu_risk$mental
 rows_missing <- which(rowSums(is.na(cov_preg_flu_risk)) >= 1)
@@ -30,7 +38,7 @@ rows_missing <- which(rowSums(is.na(cov_preg_flu_risk)) >= 1)
 
 colMeans(is.na(cov_preg_flu_risk))
 
-load("M:/p1921-mahmoudz/Mahmoud/Vaccine_Uptake/New_run_20260117/Scripts/Pregnant_flu_norisk_covariates.rdata")
+load("Path_to_Pregnant_flu_norisk_covariates.rdata")
 
 # First we calculate the percent missingness
 cov_preg_flu_norisk <- pregnant_flu_norisk[, c("Preg_id","age_at_enrollment_categorized", "county_2017", "country_of_birth", "smoking", "parity", "profession", "income_2017_cat","all.seasons", "mental" )]
@@ -47,7 +55,7 @@ cov_preg_flu_norisk <- cov_preg_flu_norisk %>% group_by(Preg_id) %>%
 
 cov_preg_flu_norisk <- cov_preg_flu_norisk[!duplicated(cov_preg_flu_norisk$Preg_id),]
 # Fix age and MH
-load("M:/p1921-mahmoudz/Mahmoud/Vaccine_Uptake/New_run_20260117/Scripts/Pregnant_Influenza_NoRisk_NoDuplicates.rdata")
+load("Path_to_Pregnant_Influenza_NoRisk_NoDuplicates.rdata")
 cov_preg_flu_norisk <- cov_preg_flu_norisk[cov_preg_flu_norisk$Preg_id %in% pregnant_flu_norisk$Preg_id,]
 cov_preg_flu_norisk$mental <- pregnant_flu_norisk$mental
 
@@ -58,7 +66,7 @@ colMeans(is.na(cov_preg_flu_norisk))
 ### We need 50 imputations
 
 
-load("M:/p1921-mahmoudz/Mahmoud/Vaccine_Uptake/New_run_20260117/Scripts/Pregnant_covid_norisk_covariates.rdata")
+load("Path_to_Pregnant_covid_norisk_covariates.rdata")
 
 # First we calculate the percent missingness
 cov_preg_covid_norisk <- pregnant_covid_norisk[, c("Preg_id","age_at_enrollment_categorized", "county_2021", "country_of_birth", "smoking", "parity", "profession", "income_2021_cat","vaccinated", "mental" )]
@@ -76,7 +84,7 @@ cov_preg_covid_norisk <- cov_preg_covid_norisk %>% group_by(Preg_id) %>%
 cov_preg_covid_norisk <- cov_preg_covid_norisk[!duplicated(cov_preg_covid_norisk$Preg_id),]
 cov_preg_covid_norisk <- cov_preg_covid_norisk[!is.na(cov_preg_covid_norisk$Preg_id),]
 # Fix age and MH
-load("M:/p1921-mahmoudz/Mahmoud/Vaccine_Uptake/New_run_20260117/Scripts/Pregnant_COVID_NoRisk_NoDuplicates.rdata")
+load("Path_to_Pregnant_COVID_NoRisk_NoDuplicates.rdata")
 cov_preg_covid_norisk <- cov_preg_covid_norisk[cov_preg_covid_norisk$Preg_id %in% pregnant_covid_norisk$Preg_id,]
 cov_preg_covid_norisk$mental <- pregnant_covid_norisk$mental
 
@@ -86,7 +94,7 @@ rows_missing <- which(rowSums(is.na(cov_preg_covid_norisk)) >= 1)
 colMeans(is.na(cov_preg_covid_norisk))
 ### We need 50 imputations
 
-load("M:/p1921-mahmoudz/Mahmoud/Vaccine_Uptake/New_run_20260117/Scripts/Pregnant_covid_risk_covariates.rdata")
+load("Path_to_Pregnant_covid_risk_covariates.rdata")
 
 # First we calculate the percent missingness
 cov_preg_covid_risk <- pregnant_covid_risk[, c("Preg_id","age_at_enrollment_categorized", "county_2021", "country_of_birth", "smoking", "parity", "profession", "income_2021_cat","vaccinated", "mental" )]
@@ -105,7 +113,7 @@ cov_preg_covid_risk <- cov_preg_covid_risk[!duplicated(cov_preg_covid_risk$Preg_
 cov_preg_covid_risk <- cov_preg_covid_risk[!is.na(cov_preg_covid_risk$Preg_id),]
 
 # Fix age and MH
-load("M:/p1921-mahmoudz/Mahmoud/Vaccine_Uptake/New_run_20260117/Scripts/Pregnant_COVID_Risk_NoDuplicates.rdata")
+load("Path_to_Pregnant_COVID_Risk_NoDuplicates.rdata")
 cov_preg_covid_risk <- cov_preg_covid_risk[cov_preg_covid_risk$Preg_id %in% pregnant_covid_risk$Preg_id,]
 cov_preg_covid_risk$mental <- pregnant_covid_risk$mental
 rows_missing <- which(rowSums(is.na(cov_preg_covid_risk)) >= 1)
@@ -226,7 +234,7 @@ imp_preg_flu_risk <- mice(cov_preg_flu_risk, m= 50, maxit = 1, method = method, 
 
 saveRDS(imp_preg_flu_risk, file = "Cov_Imputed_Pregnancy_Influenza_risk_SA_Cov.rds")
 
-load("/ess/p1921/home/p1921-mahmoudz/Mahmoud/Vaccine_Uptake/New_run_20260117/Scripts/Old_covid_Covariates.rdata")
+load("Path_to_Scripts/Old_covid_Covariates.rdata")
 old_covid$any_mh <- 0
 old_covid$any_mh[old_covid$depression_mh == 1 | old_covid$aniety_mh == 1 | old_covid$bipolar_mh == 1 | old_covid$PTSD_mh == 1 | old_covid$OCD_mh == 1 | old_covid$ADHD_mh == 1] <- 1
 
@@ -276,7 +284,7 @@ imp_old_covid <- mice(cov_old_covid, m= 25, maxit = 1, method = method, predicto
 
 saveRDS(imp_old_covid, file = "Cov_Imputed_Old_Covid_SA_Cov.rds")
 
-load("/ess/p1921/home/p1921-mahmoudz/Mahmoud/Vaccine_Uptake/New_run_20260117/Scripts/Old_flu_Covariates.rdata")
+load("Path_to_Scripts/Old_flu_Covariates.rdata")
 old_flu$any_mh <- 0
 old_flu$any_mh[old_flu$depression_mh == 1 | old_flu$aniety_mh == 1 | old_flu$bipolar_mh == 1 | old_flu$PTSD_mh == 1 | old_flu$OCD_mh == 1 | old_flu$ADHD_mh == 1] <- 1
 
