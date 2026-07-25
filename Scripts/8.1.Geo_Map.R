@@ -1,3 +1,11 @@
+################################################################################
+# Script: 8.1.Geo_Map.R
+#
+# Purpose:
+#   Plot the geographical differences in influenza and COVID-19 
+#   Vaccine uptake among pregnant and older adult women.
+################################################################################
+library(dplyr)
 library(csmaps)
 library(ggplot2)
 library(dplyr)
