@@ -1,3 +1,9 @@
+################################################################################
+# Script: 13.Table_one_statistics.R
+#
+# Purpose:
+#   Make table ones for all subcohorts.
+################################################################################
 library(cobalt)
 library(MatchThem)
 library(purrr)
