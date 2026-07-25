@@ -1,11 +1,18 @@
+################################################################################
+# Script: 3.1.Stratification_Mental_Health.R
+#
+# Purpose:
+#   Identify the exposure to mental health conditions for older adult and
+#   pregnant populations included in the influenza and COVID-19 vaccine cohorts.
+################################################################################
 
 # Load in all cohorts
-load("/ess/p1921/home/p1921-mahmoudz/Mahmoud/Vaccine_Uptake/New_run_20260117/Populations/Older_Adult_Influenza_Population.rdata")
-load("/ess/p1921/home/p1921-mahmoudz/Mahmoud/Vaccine_Uptake/New_run_20260117/Populations/Older_Adult_COVID19_Population.rdata")
-load("/ess/p1921/home/p1921-mahmoudz/Mahmoud/Vaccine_Uptake/New_run_20260117/Populations/Pregnant_Influenza_Risk_Population.rdata")
-load("/ess/p1921/home/p1921-mahmoudz/Mahmoud/Vaccine_Uptake/New_run_20260117/Populations/Pregnant_Influenza_NoRisk_Population.rdata")
-load("/ess/p1921/home/p1921-mahmoudz/Mahmoud/Vaccine_Uptake/New_run_20260117/Populations/Pregnant_COVID19_Risk_Population.rdata")
-load("/ess/p1921/home/p1921-mahmoudz/Mahmoud/Vaccine_Uptake/New_run_20260117/Populations/Pregnant_COVID19_NoRisk_Population.rdata")
+load("Path_to_Older_Adult_Influenza_Population.rdata")
+load("Path_to_Older_Adult_COVID19_Population.rdata")
+load("Path_to_Pregnant_Influenza_Risk_Population.rdata")
+load("Path_to_Pregnant_Influenza_NoRisk_Population.rdata")
+load("Path_to_Pregnant_COVID19_Risk_Population.rdata")
+load("Path_to_Pregnant_COVID19_NoRisk_Population.rdata")
 
 # Load libraries in
 library(lubridate)
@@ -17,23 +24,23 @@ library(broom)
 # NPR does not have the mental health diagnoses used in this project and will thus be skipped
 # Check for each mental health separately in each population
 # Make and Save a KUHR file for influenza
-KUHR_2015 <- read.csv("N:/durable/VAC4EU datasets/Delivery June-Sep 2024/KUHR/2015 Data fra KUHR 22-261/2015 Data fra KUHR 22-261.dsv", sep = ";")
+KUHR_2015 <- read.csv("Path_to_/2015 Data fra KUHR 22-261.dsv", sep = ";")
 KUHR_2015 <- KUHR_2015[(grepl("P", KUHR_2015$DIAGNOSER, ignore.case = T) & KUHR_2015$DIAGNOSEKODEVERK == "ICPC-2")
                        |(grepl("F", KUHR_2015$DIAGNOSER, ignore.case = T) & KUHR_2015$DIAGNOSEKODEVERK == "ICD-10"),]
 gc()
-KUHR_2016 <- read.csv("N:/durable/VAC4EU datasets/Delivery June-Sep 2024/KUHR/2016 Data fra KUHR 22-261/2016 Data fra KUHR 22-261.dsv", sep = ";")
+KUHR_2016 <- read.csv("Path_to_2016 Data fra KUHR 22-261.dsv", sep = ";")
 KUHR_2016 <- KUHR_2016[(grepl("P", KUHR_2016$DIAGNOSER, ignore.case = T) & KUHR_2016$DIAGNOSEKODEVERK == "ICPC-2")
                        |(grepl("F", KUHR_2016$DIAGNOSER, ignore.case = T) & KUHR_2016$DIAGNOSEKODEVERK == "ICD-10"),]
 gc()
-KUHR_2017 <- read.csv("N:/durable/VAC4EU datasets/Delivery June-Sep 2024/KUHR/2017 Data fra KUHR 22-261/2017 Data fra KUHR 22-261.dsv", sep = ";")
+KUHR_2017 <- read.csv("Path_to_2017 Data fra KUHR 22-261.dsv", sep = ";")
 KUHR_2017 <- KUHR_2017[(grepl("P", KUHR_2017$DIAGNOSER, ignore.case = T) & KUHR_2017$DIAGNOSEKODEVERK == "ICPC-2")
                        |(grepl("F", KUHR_2017$DIAGNOSER, ignore.case = T) & KUHR_2017$DIAGNOSEKODEVERK == "ICD-10"),]
 gc()
-KUHR_2018 <- read.csv("N:/durable/VAC4EU datasets/Delivery June-Sep 2024/KUHR/2018 Data fra KUHR 22-261/2018 Data fra KUHR 22-261.dsv", sep = ";")
+KUHR_2018 <- read.csv("Path_to_2018 Data fra KUHR 22-261.dsv", sep = ";")
 KUHR_2018 <- KUHR_2018[(grepl("P", KUHR_2018$DIAGNOSER, ignore.case = T) & KUHR_2018$DIAGNOSEKODEVERK == "ICPC-2")
                        |(grepl("F", KUHR_2018$DIAGNOSER, ignore.case = T) & KUHR_2018$DIAGNOSEKODEVERK == "ICD-10"),]
 gc()
-KUHR_2019 <- fread("N:/durable/VAC4EU datasets/Delivery June-Sep 2024/KUHR/2019 Data fra KUHR 22-261/2019 Data fra KUHR 22-261.dsv", sep = ';')
+KUHR_2019 <- fread("Path_to_2019 Data fra KUHR 22-261.dsv", sep = ';')
 KUHR_2019 <- KUHR_2019[(grepl("P", KUHR_2019$DIAGNOSER, ignore.case = T) & KUHR_2019$DIAGNOSEKODEVERK == "ICPC-2")
                        |(grepl("F", KUHR_2019$DIAGNOSER, ignore.case = T) & KUHR_2019$DIAGNOSEKODEVERK == "ICD-10"),]
 gc()
@@ -46,19 +53,19 @@ KUHR <- merge(KUHR, KUHR_2019, all = T)
 save(KUHR, file = "KUHR_FLU_MH.rdata")
 
 # Make and Save a KUHR file for COVID
-KUHR_2020 <- fread("/ess/p1921/data/durable/VAC4EU datasets/Delivery June-Sep 2024/KUHR/2020 Data fra KUHR 22-261/2020 Data fra KUHR 22-261.dsv", sep = ';')
+KUHR_2020 <- fread("Path_to_2020 Data fra KUHR 22-261.dsv", sep = ';')
 KUHR_2020 <- KUHR_2020[(grepl("P", KUHR_2020$DIAGNOSER, ignore.case = T) & KUHR_2020$DIAGNOSEKODEVERK == "ICPC-2")
                        |(grepl("F", KUHR_2020$DIAGNOSER, ignore.case = T) & KUHR_2020$DIAGNOSEKODEVERK == "ICD-10"),]
 gc()
-KUHR_2021 <- fread("/ess/p1921/data/durable/VAC4EU datasets/Delivery June-Sep 2024/KUHR/2021 Data fra KUHR 22-261/2021 Data fra KUHR 22-261.dsv", sep = ';')
+KUHR_2021 <- fread("Path_to_2021 Data fra KUHR 22-261.dsv", sep = ';')
 KUHR_2021 <- KUHR_2021[(grepl("P", KUHR_2021$DIAGNOSER, ignore.case = T) & KUHR_2021$DIAGNOSEKODEVERK == "ICPC-2")
                        |(grepl("F", KUHR_2021$DIAGNOSER, ignore.case = T) & KUHR_2021$DIAGNOSEKODEVERK == "ICD-10"),]
 gc()
-KUHR_2022 <- fread("/ess/p1921/data/durable/VAC4EU datasets/Delivery June-Sep 2024/KUHR/2022 Data fra KUHR 22-261/2022 Data fra KUHR 22-261.dsv", sep = ';')
+KUHR_2022 <- fread("Path_to_2022 Data fra KUHR 22-261.dsv", sep = ';')
 KUHR_2022 <- KUHR_2022[(grepl("P", KUHR_2022$DIAGNOSER, ignore.case = T) & KUHR_2022$DIAGNOSEKODEVERK == "ICPC-2")
                        |(grepl("F", KUHR_2022$DIAGNOSER, ignore.case = T) & KUHR_2022$DIAGNOSEKODEVERK == "ICD-10"),]
 gc()
-KUHR_2023 <- fread("/ess/p1921/data/durable/VAC4EU datasets/Delivery June-Sep 2024/KUHR/2023 Data fra KUHR 22-261/2023 Data fra KUHR 22-261.dsv", sep = ';')
+KUHR_2023 <- fread("Path_to_2023 Data fra KUHR 22-261.dsv", sep = ';')
 KUHR_2023 <- KUHR_2023[(grepl("P", KUHR_2023$DIAGNOSER, ignore.case = T) & KUHR_2023$DIAGNOSEKODEVERK == "ICPC-2")
                        |(grepl("F", KUHR_2023$DIAGNOSER, ignore.case = T) & KUHR_2023$DIAGNOSEKODEVERK == "ICD-10"),]
 gc()
@@ -67,7 +74,7 @@ KUHR <- merge(KUHR_2020, KUHR_2021, all = T)
 KUHR <- merge(KUHR, KUHR_2022, all = T)
 KUHR <- merge(KUHR, KUHR_2023, all = T)
 
-ref_kuhr <- read.csv("N:/durable/VAC4EU datasets/Delivery June-Sep 2024/Reference_dates_KUHR.csv", sep = ",")
+ref_kuhr <- read.csv("Path_to_Reference_dates_KUHR.csv", sep = ",")
 colnames(ref_kuhr) [1] <- "PASIENTLOPENUMMER"
 KUHR<- merge(KUHR, ref_kuhr, all = T)
 KUHR$date <- as.Date(KUHR$ref_date) + KUHR$DIFFERANSEDAGER
