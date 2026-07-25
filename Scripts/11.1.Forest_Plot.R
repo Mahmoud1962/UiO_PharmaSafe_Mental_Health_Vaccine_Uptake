@@ -1,3 +1,10 @@
+################################################################################
+# Script: 11.1.Forest_Plot.R
+#
+# Purpose:
+#   Make forest plots demonstrating the resulting weighted prevalnce ratios
+#   and their confidence intervals. This is done for the primary analysis.
+################################################################################
 library(tibble)
 library(ggplot2)
 library(dplyr)
