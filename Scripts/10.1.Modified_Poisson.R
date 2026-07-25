@@ -1,10 +1,18 @@
+################################################################################
+# Script: 10.1.Modified_Poisson.R
+#
+# Purpose:
+#   Fit modified poisson models with robust variance estimators for each 
+#   subpopulation across all mental health conditions. Results from all 
+#   imputations are pooled using Rubin's rules.
+################################################################################
 library(lmtest)
 library(sandwich)
 library(dplyr)
 library(tidyr)
 
-load("M:/p1921-mahmoudz/Mahmoud/Vaccine_Uptake/New_run_20260117/Scripts/Pregnant_COVID_Risk_Weight_Corrected.rdata")
-load("M:/p1921-mahmoudz/Mahmoud/Vaccine_Uptake/New_run_20260117/Scripts/Pregnant_Risk_COVID_Population_MH_corrected.rdata")
+load("Path_to_Pregnant_COVID_Risk_Weight_Corrected.rdata")
+load("Path_to_Pregnant_Risk_COVID_Population_MH_corrected.rdata")
 pregnant_covid_risk <- pregnant_covid_risk %>% group_by(Preg_id) %>%
   mutate(mental = max(mental),
          mixed = max(mixed),
@@ -17,7 +25,7 @@ pregnant_covid_risk <- pregnant_covid_risk %>% group_by(Preg_id) %>%
          vaccinated = max(vaccinated))
 pregnant_covid_risk <- pregnant_covid_risk[!duplicated(pregnant_covid_risk$Preg_id),]
 
-load("M:/p1921-mahmoudz/Mahmoud/Vaccine_Uptake/New_run_20260117/Scripts/Pregnant_NoRisk_COVID_Population_MH_corrected.rdata")
+load("Path_to_Pregnant_NoRisk_COVID_Population_MH_corrected.rdata")
 pregnant_covid_norisk <- pregnant_covid_norisk %>% group_by(Preg_id) %>%
   mutate(mental = max(mental),
          mixed = max(mixed),
@@ -30,7 +38,7 @@ pregnant_covid_norisk <- pregnant_covid_norisk %>% group_by(Preg_id) %>%
          vaccinated = max(vaccinated))
 pregnant_covid_norisk <- pregnant_covid_norisk[!duplicated(pregnant_covid_norisk$Preg_id),]
 
-load("M:/p1921-mahmoudz/Mahmoud/Vaccine_Uptake/New_run_20260117/Scripts/Pregnant_NoRisk_Influenza_Population_MH_corrected.rdata")
+load("Path_to_Pregnant_NoRisk_Influenza_Population_MH_corrected.rdata")
 pregnant_flu_norisk <- pregnant_flu_norisk %>% group_by(Preg_id) %>%
   mutate(mental = max(mental),
          mixed = max(mixed),
@@ -47,7 +55,7 @@ pregnant_flu_norisk <- pregnant_flu_norisk %>% group_by(Preg_id) %>%
          vaccinated = max(vaccinated))
 pregnant_flu_norisk <- pregnant_flu_norisk[!duplicated(pregnant_flu_norisk$Preg_id),]
 
-load("M:/p1921-mahmoudz/Mahmoud/Vaccine_Uptake/New_run_20260117/Scripts/Pregnant_Risk_Influenza_Population_MH_corrected.rdata")
+load("Path_to_Pregnant_Risk_Influenza_Population_MH_corrected.rdata")
 pregnant_flu_risk <- pregnant_flu_risk %>% group_by(Preg_id) %>%
   mutate(mental = max(mental),
          mixed = max(mixed),
@@ -66,7 +74,7 @@ pregnant_flu_risk <- pregnant_flu_risk[!duplicated(pregnant_flu_risk$Preg_id),]
 pregnant_flu_risk <- pregnant_flu_risk[pregnant_flu_risk$eligible_risk == 1,]
 pregnant_flu_norisk <- pregnant_flu_norisk[pregnant_flu_norisk$eligible_norisk == 1,]
 
-load("M:/p1921-mahmoudz/Mahmoud/Vaccine_Uptake/New_run_20260117/Scripts/Old_Influenza_Population_MH_corrected.rdata")
+load("Path_to_Old_Influenza_Population_MH_corrected.rdata")
 old_flu <- old_flu %>% group_by(person_id) %>%
   mutate(mental = max(mental),
          mixed = max(mixed),
@@ -84,7 +92,7 @@ old_flu <- old_flu %>% group_by(person_id) %>%
 old_flu <- old_flu[!duplicated(old_flu$person_id),]
 old_flu <- old_flu[old_flu$eligible == 1,]
 
-load("M:/p1921-mahmoudz/Mahmoud/Vaccine_Uptake/New_run_20260117/Scripts/Old_COVID_Population_MH_corrected..rdata")
+load("Path_to_Old_COVID_Population_MH_corrected..rdata")
 old_covid <- old_covid2 %>% group_by(person_id) %>%
   mutate(mental = max(mental),
          mixed = max(mixed),
@@ -6803,22 +6811,3 @@ old_covid_booster1_LCI <- c(1.11,1.13,1.12,1.08,1.13,1.23,1.11,1.16)
 old_covid_booster2_RR <- c(1.05,1.02,1.07,1,1.08,1.11,0.98,1.03)
 old_covid_booster2_UCI <- c(1.04,0.96,1.05,0.96,1.03,1.03,0.9,0.89)
 old_covid_booster2_LCI <- c(1.07,1.08,1.09,1.03,1.13,1.2,1.07,1.19)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
