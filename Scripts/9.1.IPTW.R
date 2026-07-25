@@ -1,9 +1,16 @@
+################################################################################
+# Script: 9.1.IPTW.R
+#
+# Purpose:
+#   Construct inverse probability of treatment weights ffor all subpopulations, 
+#   and trim extreme weights to stabalize them.
+################################################################################
 library(mice)
 library(dplyr)
 library(broom)
 library(WeightIt)
 
-cov_preg_covid_risk <- readRDS("/ess/p1921/home/p1921-mahmoudz/Mahmoud/Vaccine_Uptake/New_run_20260117/Scripts/Cov_Imputed_Pregnancy_Covid_Risk_SA.rds")
+cov_preg_covid_risk <- readRDS("Path_to_Cov_Imputed_Pregnancy_Covid_Risk_SA.rds")
 preg_covid_risk_imp <- complete(cov_preg_covid_risk, action = "all")
 
 # Function to apply IPTW and return a survey design object
@@ -76,7 +83,7 @@ cv_across_imps <- sd(weight_stats$mean) / mean(weight_stats$mean)
 preg_covid_risk_imp <- implist_weighted
 save(preg_covid_risk_imp, file = "Pregnant_Covid_Risk_Weights_SA.rdata")
 #######################################################################################################################
-cov_preg_covid_norisk <- readRDS("/ess/p1921/home//p1921-mahmoudz/Mahmoud/Vaccine_Uptake/New_run_20260117/Scripts/Cov_Imputed_Pregnancy_Covid_Norisk_SA.rds")
+cov_preg_covid_norisk <- readRDS("Path_to_Cov_Imputed_Pregnancy_Covid_Norisk_SA.rds")
 preg_covid_norisk_imp <- complete(cov_preg_covid_norisk, action = "all")
 
 # Function to apply IPTW and return a survey design object
@@ -149,7 +156,7 @@ cv_across_imps <- sd(weight_stats$mean) / mean(weight_stats$mean)
 preg_covid_norisk_imp <- implist_weighted
 save(preg_covid_norisk_imp, file = "Pregnant_Covid_NoRisk_Weights_SA.rdata")
 ########################################################################################################################
-cov_preg_flu_norisk <- readRDS("/ess/p1921/home//p1921-mahmoudz/Mahmoud/Vaccine_Uptake/New_run_20260117/Scripts/Cov_Imputed_Pregnancy_Influenza_Norisk_SA.rds")
+cov_preg_flu_norisk <- readRDS("Path_to_Cov_Imputed_Pregnancy_Influenza_Norisk_SA.rds")
 preg_flu_norisk_imp <- complete(cov_preg_flu_norisk, action = "all")
 
 # Function to apply IPTW and return a survey design object
@@ -222,7 +229,7 @@ cv_across_imps <- sd(weight_stats$mean) / mean(weight_stats$mean)
 preg_flu_norisk_imp <- implist_weighted
 save(preg_flu_norisk_imp, file = "Pregnant_Influenza_NoRisk_Weights_SA.rdata")
 ####################################################################################################################
-cov_preg_flu_risk <- readRDS("/ess/p1921/home//p1921-mahmoudz/Mahmoud/Vaccine_Uptake/New_run_20260117/Scripts/Cov_Imputed_Pregnancy_Influenza_risk_SA.rds")
+cov_preg_flu_risk <- readRDS("Path_to_Cov_Imputed_Pregnancy_Influenza_risk_SA.rds")
 preg_flu_risk_imp <- complete(cov_preg_flu_risk, action = "all")
 
 # Function to apply IPTW and return a survey design object
@@ -295,7 +302,7 @@ cv_across_imps <- sd(weight_stats$mean) / mean(weight_stats$mean)
 preg_flu_risk_imp <- implist_weighted
 save(preg_flu_risk_imp, file = "Pregnant_Influenza_Risk_Weights_SA.rdata")
 ###############################################################################################
-cov_old_flu <- readRDS("/ess/p1921/home//p1921-mahmoudz/Mahmoud/Vaccine_Uptake/New_run_20260117/Scripts/Cov_Imputed_Old_Influenza_SA.rds")
+cov_old_flu <- readRDS("Path_to_Cov_Imputed_Old_Influenza_SA.rds")
 old_flu_imp <- complete(cov_old_flu, action = "all")
 
 # Function to apply IPTW and return a survey design object
@@ -368,7 +375,7 @@ cv_across_imps <- sd(weight_stats$mean) / mean(weight_stats$mean)
 old_flu_imp <- implist_weighted
 save(old_flu_imp, file = "Old_Influenza_Weights_SA.rdata")
 ##########################################################################################################################
-cov_old_covid <- readRDS("/ess/p1921/home//p1921-mahmoudz/Mahmoud/Vaccine_Uptake/New_run_20260117/Scripts/Cov_Imputed_Old_Covid_SA.rds")
+cov_old_covid <- readRDS("Path_to_Cov_Imputed_Old_Covid_SA.rds")
 old_covid_imp <- complete(cov_old_covid, action = "all")
 
 # Function to apply IPTW and return a survey design object
