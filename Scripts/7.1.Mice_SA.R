@@ -5,7 +5,7 @@
 #   Impute missing values in covariates needed for the primary analysis
 #   of older adult and pregnant populations included in the influenza and
 #   COVID-19 vaccine cohorts. This is done in the sensitivity analysis 
-#   redefine the exposure assessment window to all avaialable time.
+#   redefining the exposure assessment window to all avaialable time.
 ################################################################################
 library(dplyr)
 library(lubridate)
