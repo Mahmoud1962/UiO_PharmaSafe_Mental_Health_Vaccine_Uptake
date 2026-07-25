@@ -1,5 +1,5 @@
 ################################################################################
-# Script: 10.1.Modified_Poisson.R
+# Script: 10.1.Modified_Poisson_SA.R
 #
 # Purpose:
 #   Fit modified poisson models with robust variance estimators for each 
