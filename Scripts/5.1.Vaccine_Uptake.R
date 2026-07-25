@@ -10,19 +10,19 @@ library(lubridate)
 library(readr)
 library(dplyr)
 
-load("/ess/p1921/home/p1921-mahmoudz/Mahmoud/Vaccine_Uptake/Scripts/old_COVID_MentalHealth_Vaccine.rdata")
+load("Path_to_old_COVID_MentalHealth_Vaccine.rdata")
 old_covid_old <- old_covid
-load("/ess/p1921/home/p1921-mahmoudz/Mahmoud/Vaccine_Uptake/New_run_20260117/Populations/Older_Adult_COVID19_Population.rdata")
+load("Path_to_Older_Adult_COVID19_Population.rdata")
 old_covid <- old_covid_old[old_covid_old$person_id %in% old_covid$person_id,]
 
-load("/ess/p1921/home/p1921-mahmoudz/Mahmoud/Vaccine_Uptake/Scripts/Old_flu_MentalHealth_Vaccine.rdata")
+load("Path_to_Old_flu_MentalHealth_Vaccine.rdata")
 
-load("/ess/p1921/home/p1921-mahmoudz/Mahmoud/Vaccine_Uptake/Scripts/Pregnant_COVID_Risk_MentalHealth_Vaccine.rdata")
+load("Path_to_Pregnant_COVID_Risk_MentalHealth_Vaccine.rdata")
 
-load("/ess/p1921/home/p1921-mahmoudz/Mahmoud/Vaccine_Uptake/Scripts/Pregnant_COVID_NoRisk_MentalHealth_Vaccine.rdata")
+load("Path_to_Pregnant_COVID_NoRisk_MentalHealth_Vaccine.rdata")
 pregnant_covid_norisk_old <- pregnant_covid_norisk
-load("/ess/p1921/home/p1921-mahmoudz/Mahmoud/Vaccine_Uptake/Scripts/Pregnant_FLU_Risk_MentalHealth_Vaccine.rdata")
-load("/ess/p1921/home/p1921-mahmoudz/Mahmoud/Vaccine_Uptake/Scripts/Pregnant_FLU_NoRisk_MentalHealth_Vaccine.rdata")
+load("Path_to_Pregnant_FLU_Risk_MentalHealth_Vaccine.rdata")
+load("Path_to_Pregnant_FLU_NoRisk_MentalHealth_Vaccine.rdata")
 
 
 old_covid$mental <- 0
