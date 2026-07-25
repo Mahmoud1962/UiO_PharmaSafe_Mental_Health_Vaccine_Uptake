@@ -1,3 +1,11 @@
+################################################################################
+# Script: 12.2.Aalen_johansen_CICs.R
+#
+# Purpose:
+#   Fit Aalen Johansen estimators to account for death and infection as 
+#   competing risks in the older adult COVID-19 population. Cumulative
+#   incidence curves are also used to visualize the results.
+################################################################################
 # Load required libraries
 # library(tidyverse)
 library(survival)
