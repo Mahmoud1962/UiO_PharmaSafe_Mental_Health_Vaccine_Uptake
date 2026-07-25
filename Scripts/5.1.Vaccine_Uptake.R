@@ -1,3 +1,11 @@
+################################################################################
+# Script: 5.1.Vaccine_Uptake.R
+#
+# Purpose:
+#   Calculate vaccine uptake for older adult and pregnant populations included
+#   in the influenza and COVID-19 vaccine cohorts. Plot a heatmap of uptake of both vaccines 
+#   in both populations.
+################################################################################
 library(lubridate)
 library(readr)
 library(dplyr)
