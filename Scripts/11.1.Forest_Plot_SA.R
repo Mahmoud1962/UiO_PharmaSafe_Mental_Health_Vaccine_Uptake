@@ -1,3 +1,12 @@
+################################################################################
+# Script: 11.1.Forest_Plot.R
+#
+# Purpose:
+#   Make forest plots demonstrating the resulting weighted prevalnce ratios
+#   and their confidence intervals. This is done for the sensitivity analysis
+#   where the exposure to mental health conditions is assessed during all
+#   available lookback time.
+################################################################################
 library(tibble)
 library(ggplot2)
 library(dplyr)
